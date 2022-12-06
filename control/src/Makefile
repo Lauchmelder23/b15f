@@ -6,8 +6,9 @@
 # Änderungen veröffentlichen, vorher nochmal: make clean && make && make doc && make clean && make doc && make
 
 # Environment
-PATH_COMPILER = g++
-PATH_DOXYGEN = ../bin/doxygen
+PATH_COMPILER 	= g++
+PATH_DOXYGEN 	= ../bin/doxygen
+PATH_AR			= ar
 
 # install paths
 PATH_BIN     = /usr/bin/
@@ -19,23 +20,25 @@ PATH_TMP_BIN = ../bin/
 PATH_TMP_LIB = ../lib/
 
 # outputs
-OUT_TMP_DRV    = $(PATH_TMP_LIB)/libb15fdrv.so
-OUT_TMP_CLI    = $(PATH_TMP_BIN)/b15fcli
-OUT_TMP_PLOTTY = $(PATH_TMP_BIN)/plotty
-OUT_DRV        = $(PATH_LIB)/libb15fdrv.so
-OUT_CLI        = $(PATH_BIN)/b15fcli
-OUT_PLOTTY     = $(PATH_BIN)/plotty
-OUT_DOC        = ../../docs/html
+OUT_TMP_DRV   	= $(PATH_TMP_LIB)/libb15fdrv.so
+OUT_TMP_CLI   	= $(PATH_TMP_BIN)/b15fcli
+OUT_TMP_WRAPPER	= $(PATH_TMP_LIB)/libb15f.a
+OUT_TMP_PLOTTY 	= $(PATH_TMP_BIN)/plotty
+OUT_DRV        	= $(PATH_LIB)/libb15fdrv.so
+OUT_CLI        	= $(PATH_BIN)/b15fcli
+OUT_WRAPPER		= $(PATH_LIB)/libb15f.a
+OUT_PLOTTY     	= $(PATH_BIN)/plotty
+OUT_DOC        	= ../../docs/html
 
 # compiling & linking parameters
-CFLAGS   = -std=c++14 -O3 -Wall -Wextra -fPIC
-LDFLAGS_DRV  = -lcurses -lpthread
-LDFLAGS_CLI  = $(LDFLAGS_DRV) -lb15fdrv
+CFLAGS   	= -std=c++14 -O3 -Wall -Wextra -fPIC
+LDFLAGS_DRV = -lcurses -lpthread
+LDFLAGS_CLI = $(LDFLAGS_DRV) -lb15fdrv
 
 # objects
-OBJECTS_DRV  = drv/usart.o drv/b15f.o drv/plottyfile.o drv/dot.o
-OBJECTS_CLI   = cli.o ui/view.o ui/view_selection.o ui/view_promt.o ui/view_info.o ui/view_monitor.o ui/ui.o
-
+OBJECTS_DRV  	= drv/usart.o drv/b15f.o drv/plottyfile.o drv/dot.o
+OBJECTS_CLI   	= cli.o ui/view.o ui/view_selection.o ui/view_promt.o ui/view_info.o ui/view_monitor.o ui/ui.o
+OBJECTS_WRAPPER	= wrapper/b15f.o
 
 
 # *** TARGETS ***
@@ -46,6 +49,7 @@ all: drv cli
 
 drv: commit_hash $(OBJECTS_DRV) $(OUT_TMP_DRV)
 	
+wrapper: drv $(OBJECTS_WRAPPER) $(OUT_TMP_WRAPPER)
 
 cli: drv $(OBJECTS_CLI)
 	@echo "Linking cli..."
@@ -63,6 +67,11 @@ $(OUT_TMP_DRV):
 	@mkdir -p ../lib
 	$(PATH_COMPILER) $(CFLAGS) $(OBJECTS_DRV) -shared -o $(OUT_TMP_DRV) $(LDFLAGS_CLI_DRV)
 	
+$(OUT_TMP_WRAPPER):
+	@echo "Linking wrapper library..."
+	@mkdir -p ../lib
+	ar rcs $(OUT_TMP_WRAPPER) $(OBJECTS_WRAPPER)
+
 style:
 	@echo "Formatting source code with astyle..."
 	-astyle --recursive --style=allman *.cpp,*.h,*.c,*.hpp
