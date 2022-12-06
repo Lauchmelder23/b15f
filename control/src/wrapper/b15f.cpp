@@ -2,9 +2,9 @@
 #include "../drv/b15f.h"
 
 #define wrap(x) reinterpret_cast<b15f_t>(x)
-#define unwrap(x) reinterpret_cast<B15F&>(x)
+#define unwrap(x) (*(reinterpret_cast<B15F*>(x)))
 
-#define default_catch catch(DriverException& e) {\
+#define default_catch catch(std::exception& e) {\
 	if (err) { \
 		strncpy(err, e.what(), len); \
 	} \
@@ -28,10 +28,15 @@ int reconnect(b15f_t drv, char* err, size_t len) {
 	return -1;
 }
 
-uint8_t read_dip_switch(b15f_t drv, char* err, size_t len) {
+int read_dip_switch(b15f_t drv, uint8_t* data, char* err, size_t len) {
+	if (data == NULL) {
+		return -EINVAL;
+	}
+
 	try {
-		return unwrap(drv).readDipSwitch();
+		*data = unwrap(drv).readDipSwitch();
+		return 0;
 	} default_catch;
 
-	return 0;
+	return -1;
 }

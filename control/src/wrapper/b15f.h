@@ -33,11 +33,12 @@ extern "C" {
 	 * @brief Reads the values of the DIP switch
 	 * 
 	 * @param drv Instance of the B15 driver
+	 * @param data Variable to store switch state in
 	 * @param err Error buffer
 	 * @param len Size of the error buffer
-	 * @return uint8_t values of the DIP switch as a bitfield
+	 * @return int 0 on success
 	 */
-	uint8_t read_dip_switch(b15f_t drv, char* err, size_t len);
+	int read_dip_switch(b15f_t drv, uint8_t* data, char* err, size_t len);
 
 #ifdef __cplusplus
 }

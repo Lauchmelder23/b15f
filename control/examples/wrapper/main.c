@@ -1,4 +1,4 @@
-#include "b15f/wrapper/b15f.h"
+#include "../src/wrapper/b15f.h"
 #include <stdio.h>
 
 int main() {
@@ -10,7 +10,11 @@ int main() {
 		return -1;
 	}
 
-	uint8_t dip = read_dip_switch(instance, NULL, 0);
+	uint8_t dip;
+	if (read_dip_switch(instance, &dip, buf, sizeof(buf)) != 0) {
+		fprintf(stderr, "%s\n", buf);
+		return -1;
+	}
 
 	printf("DIP switch reads: ");
 	for(uint8_t mask = 1; mask != 0; mask <<= 1) {
