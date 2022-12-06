@@ -1,4 +1,4 @@
 #ifndef COMMIT_HASH_H
 #define COMMIT_HASH_H
-const char COMMIT_HASH[] = "5c3f2991c7525897cbded38f62b14a7bd75df941";
+const char COMMIT_HASH[] = "c9b75ce062eab34b7b19a69e8b3206abf4ddfa3a";
 #endif // COMMIT_HASH_H

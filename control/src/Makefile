@@ -11,9 +11,10 @@ PATH_DOXYGEN 	= ../bin/doxygen
 PATH_AR			= ar
 
 # install paths
-PATH_BIN     = /usr/bin/
-PATH_LIB     = /usr/lib/
-PATH_INCLUDE = /usr/include/b15f/
+PATH_BIN     			= /usr/bin/
+PATH_LIB     			= /usr/lib/
+PATH_INCLUDE 			= /usr/include/b15f/
+PATH_INCLUDE_WRAPPER 	= /usr/include/b15f/wrapper/
 
 # tmp paths
 PATH_TMP_BIN = ../bin/
@@ -22,11 +23,11 @@ PATH_TMP_LIB = ../lib/
 # outputs
 OUT_TMP_DRV   	= $(PATH_TMP_LIB)/libb15fdrv.so
 OUT_TMP_CLI   	= $(PATH_TMP_BIN)/b15fcli
-OUT_TMP_WRAPPER	= $(PATH_TMP_LIB)/libb15f.a
+OUT_TMP_WRAPPER	= $(PATH_TMP_LIB)/libb15fwrp.a
 OUT_TMP_PLOTTY 	= $(PATH_TMP_BIN)/plotty
 OUT_DRV        	= $(PATH_LIB)/libb15fdrv.so
 OUT_CLI        	= $(PATH_BIN)/b15fcli
-OUT_WRAPPER		= $(PATH_LIB)/libb15f.a
+OUT_WRAPPER		= $(PATH_LIB)/libb15fwrp.a
 OUT_PLOTTY     	= $(PATH_BIN)/plotty
 OUT_DOC        	= ../../docs/html
 
@@ -45,11 +46,14 @@ OBJECTS_WRAPPER	= wrapper/b15f.o
 
 .PHONY: $(OUT_TMP_DRV) clean help
 
-all: drv cli
+all: drv cli wrapper
 
 drv: commit_hash $(OBJECTS_DRV) $(OUT_TMP_DRV)
 	
-wrapper: drv $(OBJECTS_WRAPPER) $(OUT_TMP_WRAPPER)
+wrapper: drv $(OBJECTS_WRAPPER)
+	@echo "Linking wrapper library..."
+	@mkdir -p ../lib
+	$(PATH_AR) rcs $(OUT_TMP_WRAPPER) $(OBJECTS_WRAPPER)
 
 cli: drv $(OBJECTS_CLI)
 	@echo "Linking cli..."
@@ -67,11 +71,6 @@ $(OUT_TMP_DRV):
 	@mkdir -p ../lib
 	$(PATH_COMPILER) $(CFLAGS) $(OBJECTS_DRV) -shared -o $(OUT_TMP_DRV) $(LDFLAGS_CLI_DRV)
 	
-$(OUT_TMP_WRAPPER):
-	@echo "Linking wrapper library..."
-	@mkdir -p ../lib
-	ar rcs $(OUT_TMP_WRAPPER) $(OBJECTS_WRAPPER)
-
 style:
 	@echo "Formatting source code with astyle..."
 	-astyle --recursive --style=allman *.cpp,*.h,*.c,*.hpp
@@ -79,14 +78,17 @@ style:
 install:
 	@echo "Installing driver..."
 	@mkdir -p $(PATH_INCLUDE)
+	@mkdir -p $(PATH_INCLUDE_WRAPPER)
 	cp $(OUT_TMP_DRV) $(OUT_DRV)
 	cp $(OUT_TMP_CLI) $(OUT_CLI)
+	cp $(OUT_TMP_WRAPPER) $(OUT_WRAPPER)
 	cp $(OUT_TMP_PLOTTY) $(OUT_PLOTTY)
 	cp drv/*.h $(PATH_INCLUDE)
+	cp wrapper/*.h $(PATH_INCLUDE_WRAPPER)
 	
 uninstall:
 	@echo "Uninstalling driver..."
-	rm -rf $(OUT_DRV) $(OUT_CLI) $(OUT_PLOTTY) $(PATH_INCLUDE)
+	rm -rf $(OUT_DRV) $(OUT_CLI) $(OUT_WRAPPER) $(OUT_PLOTTY) $(PATH_INCLUDE)
 	
 help:
 	@echo "This Makefile compiles the b15f driver lib and command line interface (CLI):"
@@ -99,7 +101,7 @@ help:
 
 clean:
 	@echo "Cleaning..."
-	-rm -f $(OBJECTS_DRV) $(OBJECTS_CLI) $(OUT_TMP_CLI) $(OUT_TMP_DRV)
+	-rm -f $(OBJECTS_DRV) $(OBJECTS_CLI) $(OBJECTS_WRAPPER) $(OUT_TMP_CLI) $(OUT_TMP_DRV) $(OUT_TMP_WRAPPER)
 	-rm -rf $(OUT_DOC)
 	-find . -type f -name '*.orig' -delete
 
