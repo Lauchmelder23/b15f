@@ -3,6 +3,9 @@
 ## Dokumentation
 Die **Projekt-Dokumentation** befindet sich hier: [https://devfix.github.io/b15f/](https://devfix.github.io/b15f/).
 
+## Über diesen Fork
+Dieser Fork maintained **nicht** das originale b15f repository. Der controller und firmware code wird von mir nicht weiter verändert oder entwickelt. Dieser Fork stellt lediglich ein C binding für die API des B15 zur verfügung.
+
 ## TODO / Ideen
 - [X] CLI: Exception catchen, set global error message, raise SIGINT --> ncurses wird richtig beendet
 - [x] Main Menu: Informationen ergänzen
